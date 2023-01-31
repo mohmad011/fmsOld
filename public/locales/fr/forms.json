@@ -1,0 +1,37 @@
+{
+    "Add_Maintenance_Plan":"Ajouter un plan d'entretien",
+    "Full_Name":"Nom et prénom",
+    "First_Name":"prénom",
+    "Last_Name":"nom de famille",
+    "Date_of_Birth":"Date de naissance",
+    "Nationality":"Nationalité",
+    "Upload_Image":"Télécharger une image",
+    "Selected_Vehicle_Plate_Number":"Numéro de plaque du véhicule sélectionné",
+    "Wasl_Integration":"Intégration Wasl (facultatif)",
+    "Identity_Number":"Numéro d'identité",
+    "Date_Of_Birth_Hijri":"Date de naissance Hijri",
+    "Mobile_Number":"Numéro de portable",
+    "Name":"Nom",
+    "Phone_Number":"Numéro de téléphone",
+    "Phone":"Téléphoner",
+    "Email":"E-mail",
+    "Department":"Département",
+    "Licence_Number":"Numéro de plaque",
+    "Licence_Expiration_Date":"Date d'expiration de la licence",
+    "RFID":"RFID",
+    "Wasl Integration":"Intégration Wasl",
+    "Exist":"Exister",
+    "Non_Exist":"N'existe pas",
+    "Add_Driver":"Ajouter un pilote",
+    "Car_Wash":"Lave-Auto",
+    "Bettery_Check":"Chèque Betty",
+    "Fixed":"Fixé",
+    "Still":"Toujours",
+    "By Mileage":"Par kilométrage",
+    "By Fixed Date":"A date fixe",
+    "By Working Hours":"Par heures de travail",
+    "Update_Driver_Plan":"Mettre à jour le forfait conducteur"
+
+
+    
+}

@@ -1,0 +1,40 @@
+{
+    "View_History":"Voir l'historique",
+    "Delete_Selected":"Supprimer sélectionnée",
+    "Export_To_Excel":"Exporter vers Excel",
+    "Add_Maintenance_Plan": "Ajouter un plan d'entretien",
+    "No_Data_Found":"Oups .. quelque chose s'est mal passé ..",
+    "Display_Name":"Afficher un nom",
+    "Plate_Number":"Numéro de la plaque",
+    "Maintenance":"Entretien",
+    "Maintenance_type":"Type d'entretien",
+    "Period_Type":"Type de période",
+    "Start_Value":"Valeur de départ",
+    "Next_Value":"Valeur suivante",
+    "Recurring":"Récurrent",
+    "Actions":"Actions",
+    "Change_Vehicle_Brakes":"Changer les freins du véhicule",
+    "Vehicle_License_Renew":"Renouvellement du permis de véhicule",
+    "Vehicle_Wash":"Lavage de véhicules",
+    "Tires_Change":"Changement de pneus",
+    "Transmission_Oil_Change":"Changement d'huile de transmission",
+    "Filter_Change":"Changement de filtre",
+    "Delete Selected":"Supprimer sélectionnée",
+    "Loading":"Chargement...",
+    "edit":"Éditer",
+    "delete":"effacer",
+    "reset":"réinitialiser"
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

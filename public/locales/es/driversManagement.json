@@ -1,0 +1,24 @@
+{
+    "Add_New_Driver":"Agregar nuevo controlador",
+    "Export_To_Excel":"Exportar a Excel",
+    "Add_Drivers_Bulk":"Agregar controladores de forma masiva",
+    "No_Data_Found":"Opps... algo salió mal...",
+    "edit":"editar",
+    "delete":"Eliminar",
+    "Deactivate":"Desactivar",
+    "Show_Vehicles":"Mostrar vehículos",
+    "Show_Buttons":"Mostrar botones",
+    "Full_Name":"Nombre completo",
+    "Phone_Number":"Número de teléfono",
+    "Email":"Correo electrónico",
+    "Department":"Departamento",
+    "Licence_Number":"Número de licencia",
+    "Licence_Expiration_Date":"Fecha de vencimiento de la licencia",
+    "RFID":"RFID",
+    "WASL_Integration":"Integración WASL",
+    "Actions":"Comportamiento",
+    "Locate_driver" : "Localizar controlador",
+    "Show_assigned_vehicles":"Mostrar vehículos asignados"
+
+
+}

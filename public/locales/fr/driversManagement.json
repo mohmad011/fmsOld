@@ -1,0 +1,25 @@
+{
+    "Add_New_Driver":"Ajouter un nouveau pilote",
+    "Export_To_Excel":"Exporter vers Excel",
+    "Add_Drivers_Bulk":"Ajouter des pilotes en masse",
+    "No_Data_Found":"Oups .. quelque chose s'est mal passé ..",
+    "edit":"Éditer",
+    "delete":"effacer",
+    "Deactivate":"Désactiver",
+    "Show_Vehicles":"Afficher les véhicules",
+    "Show_Buttons":"Afficher les boutons",
+    "Full_Name":"Nom et prénom",
+    "Phone_Number":"Numéro de téléphone",
+    "Email":"E-mail",
+    "Department":"Département",
+    "Licence_Number":"Numéro de plaque",
+    "Licence_Expiration_Date":"Date d'expiration de la licence",
+    "RFID":"RFID",
+    "WASL_Integration":"Intégration WASL",
+    "Actions":"Actions",
+    "Locate_driver" : "Localiser le pilote",
+    "Show_assigned_vehicles":"Afficher les véhicules attribués"
+
+
+
+}
