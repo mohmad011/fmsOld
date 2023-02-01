@@ -1,9 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSelector } from "react-redux";
 import Styles from "styles/WidgetMenu.module.scss";
 import ChartCpm from "components/history/chart";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { encryptName } from "helpers/encryptions";
+import { useRouter } from "next/router";
+import useStreamDataState from "../hooks/useStreamDataState";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const StepperComp = dynamic(() => import("components/history/stepper"), {
   ssr: false,
@@ -12,6 +17,47 @@ const MapWithNoSSR = dynamic(() => import("components/history/map"), {
   ssr: false,
 });
 const History = () => {
+  const router = useRouter();
+  // const { myMap } = useSelector((state) => state.mainMap);
+  // const { VehMapFiltered, VehFullData } = useSelector(
+  //   (state) => state.streamData
+  // );
+  // const { trackStreamLoader } = useStreamDataState(VehMapFiltered);
+
+  // if (window != undefined) {
+  //   let userData = JSON.parse(
+  //     localStorage.getItem(encryptName("userData")) ?? "{}"
+  //   );
+  //   if (!userData) {
+  //     if (myMap) {
+  //       myMap?.deselectAll();
+  //       trackStreamLoader(VehFullData, VehMapFiltered);
+  //     }
+  //   }
+
+  // }
+
+  useEffect(() => {
+    const getDatavehs = async () => {
+      return await axios
+        .get(`vehicles/settings?withloc=1`)
+        .then((res) => {
+          let vehsIds = res.data?.map((veh) => veh.VehicleID);
+          let params =
+            window != undefined && +window.location.search.split("=")[1];
+
+          if (params && !vehsIds.includes(params)) {
+            router.push("/notFound");
+          }
+        })
+        .catch((error) => {
+          toast.error(error?.response?.data?.message);
+          return [];
+        });
+    };
+    getDatavehs();
+  }, []);
+
   const map = useRef();
 
   const { config } = useSelector((state) => state);

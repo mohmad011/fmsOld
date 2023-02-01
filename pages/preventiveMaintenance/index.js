@@ -284,6 +284,7 @@ function PreventiveMaintenance() {
                 columnDefs={columns}
                 rowData={DataTable}
                 rowSelection={"multiple"}
+                rowMultiSelectWithClick={'true'}
                 onSelectionChanged={(e) =>
                   setrowsSelected([...e.api.getSelectedRows()])
                 }

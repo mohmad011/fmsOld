@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Row, Col, Card, Form, Button } from "react-bootstrap";
+import { Row, Col, Card, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HideActions from "hooks/HideActions";
 import UseDarkmode from "../../../../hooks/UseDarkmode";
@@ -9,11 +9,7 @@ import {
   faUsers,
   faPlug,
   faUsersCog,
-  faCar,
   faUserEdit,
-  faEdit,
-  faTrash,
-  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
 
 // CardCountStart Component
@@ -75,22 +71,29 @@ const AccountManagement = () => {
   const [idForNowAccount, setIdForNowAccount] = useState(0);
   const [accountInfos, setAccountInfos] = useState([]);
   const [allAccountInfos, setAllAccountInfos] = useState([]);
-  const [gridApi, setGridApi] = useState(null);
-  const [gridColumnApi, setGridColumnApi] = useState(null);
+  const [assignedGridApi, setAssignedGridApi] = useState(null);
+  const [assignedGridColumnApi, setAssignedGridColumnApi] = useState(null);
+  const [unassignedGridApi, setUnassignedGridApi] = useState(null);
+  const [unassignedGridColumnApi, setUnassignedGridColumnApi] = useState(null);
 
   const [allAccountData] = useState([]);
   const [parentAccounts, setParentAccounts] = useState([]);
-
+  const [accStatus, setAccStatus] = useState([]);
   const [allUnAssignedAccountInfos, setAllUnAssignedAccountInfos] = useState(
     []
   );
   const rowHeight = 65;
 
   const allAccountInfo = useSelector((state) => state?.accountInfo);
-  // console.log("allAccountInfo", allAccountInfo.AllData);
-  console.log("allAccountInfos", allAccountInfos);
-
   const { tokenRef } = useToken();
+  // console.log("accountInfos", accountInfos);
+  useEffect(async () => {
+    const response = await axios({
+      method: "get",
+      url: `dashboard/management/accounts/statistics`,
+    });
+    setAccStatus(...response.data.accountsStatistics);
+  }, [tokenRef]);
 
   useEffect(() => {
     setToken(tokenRef);
@@ -98,9 +101,9 @@ const AccountManagement = () => {
 
   useEffect(() => {
     if (idForNowAccount > 0) {
-      // let allAccountInfosFilterd = allAccountInfos.filter(
-      //   (item) => item.AccountID === idForNowAccount
-      // );
+      let allAccountInfosFilterd = allAccountInfos.filter(
+        (item) => item.AccountID === idForNowAccount
+      );
       // console.log("allAccountInfosFilterd", allAccountInfosFilterd);
       allAccountInfos.forEach((item) => {
         if (item.AccountID === idForNowAccount) {
@@ -212,25 +215,24 @@ const AccountManagement = () => {
       .catch((err) => console.log(err));
   };
 
-
   const columnsAssigned = useMemo(
     () => [
       {
         headerName: `${t("Account_Name")}`,
         field: "AccountName",
-        cellRenderer: (params) =>
-        (
+        cellRenderer: (params) => (
           <>
             <div>{params.value}</div>
-            <div className=" w-100" style={{ marginTop: "-10px", display: "flex", gap: "1rem" }}>
+            <div
+              className=" w-100"
+              style={{ marginTop: "-10px", display: "flex", gap: "1rem" }}
+            >
               <a
                 href={`/management/ItemVehicleManagment/${params.data.AccountID}`}
               >
-                <span  >
-
+                <span>
                   {/* {t("user_role")} */}
                   {t("Manage_Vehicles")}
-
                 </span>
               </a>
 
@@ -238,11 +240,9 @@ const AccountManagement = () => {
                 href={`https://track.saferoad.net/UsersManagement/index?AccountID=${params.data.AccountID}`}
                 target="_blank"
               >
-                <span  >
-
+                <span>
                   {/* {t("user_info")} */}
                   {t("Manage_Users")}
-
                 </span>
               </a>
 
@@ -252,13 +252,10 @@ const AccountManagement = () => {
                 href={`http://track.saferoad.net/Subscription/Index?AccountID=${params.data.AccountID}`}
                 style={{ display: "flex", gap: "1rem" }}
               >
-                <span
-                  onClick={() => handleEditAccount(params.data.AccountID)}
-                >
+                <span onClick={() => handleEditAccount(params.data.AccountID)}>
                   {/* {t("manage_vehicles")} */}
                   {t("Edit")}
                 </span>
-
               </a>
 
               <a
@@ -267,7 +264,7 @@ const AccountManagement = () => {
                 href={`http://track.saferoad.net/Subscription/Index?AccountID=${params.data.AccountID}`}
                 style={{ display: "flex", gap: "1rem" }}
               >
-              <span disabled>
+                <span disabled>
                   {/* {t("reset_password")} */}
                   {t("Subscriptions")}
                 </span>
@@ -278,9 +275,7 @@ const AccountManagement = () => {
                 href={`http://track.saferoad.net/Subscription/Index?AccountID=${params.data.AccountID}`}
                 style={{ display: "flex", gap: "1rem" }}
               >
-                <span
-                  onClick={() => handleStatusAction(params.data.AccountID)}
-                >
+                <span onClick={() => handleStatusAction(params.data.AccountID)}>
                   {/* {t("reset_password")} */}
                   {params.data.StatusID ? t("Suspend") : t("Activate")}
                 </span>
@@ -324,7 +319,6 @@ const AccountManagement = () => {
         //  valueFormatter: "value?.toFixed(2)",
         unSortIcon: true,
       },
-
     ],
     [t, allAccountInfos, accountInfos]
   );
@@ -403,17 +397,20 @@ const AccountManagement = () => {
   const onFirstDataRendered = (params) => {
     params.api.paginationGoToPage(0);
   };
-  const onGridReady = useCallback(async (params) => {
-    try {
-      setGridApi(params.api);
-      setGridColumnApi(params.columnApi);
-    } catch (error) {
-    }
-  }, []);
+  
+  const onAssignedGridReady = (params) => {
+    setAssignedGridApi(params.api);
+    setAssignedGridColumnApi(params.columnApi);
+  };
+  const onUnassignedGridReady = (params) => {
+    setUnassignedGridApi(params.api);
+    setUnassignedGridColumnApi(params.columnApi);
+  };
+
   const onExportClick = () => {
     // gridApi.exportDataAsCsv();
-    console.log(gridApi.getDataAsCsv());
-  }
+    console.log(assignedGridApi.getDataAsCsv());
+  };
   // const onBtnExport = () => {
   //   gridApi.exportDataAsCsv();
   // };
@@ -654,25 +651,25 @@ const AccountManagement = () => {
           icon={faUsers}
           iconColor="primary"
           title="Total_Accounts"
-          countEnd="115"
+          countEnd={accStatus?.totalAccounts}
         />
         <CardCountStart
           icon={faUsers}
           iconColor="success"
           title="Active_Accounts"
-          countEnd="2"
+          countEnd={accStatus?.activeAccounts}
         />
         <CardCountStart
           icon={faPlug}
           iconColor="warning"
           title="Suspended_Accounts"
-          countEnd="5"
+          countEnd={accStatus?.inActiveAccounts}
         />
         <CardCountStart
           icon={faUsersCog}
           iconColor="info"
           title="Distributor_Accounts"
-          countEnd="2"
+          countEnd={accStatus?.distributorAccounts}
         />
       </Row>
       <Row>
@@ -696,27 +693,25 @@ const AccountManagement = () => {
                         {t("Add_Account")}
                       </button>
                     </Link>
-
                   </div>
                 </div>
               </Card.Header>
               <Card.Body>
                 <AgGridDT
-                  rowHeight={rowHeight}
-                  columnDefs={columnsAssigned}
-                  rowData={accountInfos}
-                  paginationNumberFormatter={function (params) {
+                  rowHeight                 = {rowHeight}
+                  columnDefs                = {columnsAssigned}
+                  rowData                   = {accountInfos}
+                  paginationNumberFormatter = {function (params) {
                     return params.value.toLocaleString();
                   }}
-                  onFirstDataRendered={onFirstDataRendered}
-                  defaultColDef={defaultColDef}
-                  onGridReady={onGridReady}
-                  gridApi={gridApi}
-                
-                  onCellMouseOut={HideActions}
-                  overlayNoRowsTemplate="Loading..."
-                  suppressMenuHide={true}
-
+                  onFirstDataRendered       = {onFirstDataRendered}
+                  defaultColDef             = {defaultColDef}
+                  onGridReady               = {onAssignedGridReady}
+                  gridApi                   = {assignedGridApi}
+                  gridColumnApi             = {assignedGridColumnApi}
+                  onCellMouseOut            = {HideActions}
+                  overlayNoRowsTemplate     = "Loading..."
+                  suppressMenuHide          = {true}
                 />
               </Card.Body>
             </Card>
@@ -743,8 +738,9 @@ const AccountManagement = () => {
                   }}
                   onFirstDataRendered={onFirstDataRendered}
                   defaultColDef={defaultColDef}
-                  onGridReady={onGridReady}
-                  gridApi={gridApi}
+                  onGridReady={onUnassignedGridReady}
+                  gridApi={unassignedGridApi}
+                  gridColumnApi={unassignedGridColumnApi}
                   // onCellMouseOver={(e) =>
                   //   (e.event.path[1].dataset.test = "showActions")
                   // }
@@ -752,7 +748,6 @@ const AccountManagement = () => {
                   overlayNoRowsTemplate="Loading..."
                   suppressMenuHide={true}
                 />
-
               </Card.Body>
             </Card>
           </Col>
@@ -835,16 +830,23 @@ const AccountManagement = () => {
                           >
                             {parentAccounts?.length > 0
                               ? parentAccounts?.map((item) =>
-                                parentAccounts?.indexOf(item) === 0 ? (
-                                  <option selected value={item.AccountID}>
-                                    {item.AccountName}
-                                  </option>
-                                ) : (
-                                  <option value={item.AccountID}>
-                                    {item.AccountName}
-                                  </option>
+                                  parentAccounts?.indexOf(item) === 0 ? (
+                                    <option
+                                      key={item.AccountID}
+                                      selected
+                                      value={item.AccountID}
+                                    >
+                                      {item.AccountName}
+                                    </option>
+                                  ) : (
+                                    <option
+                                      key={item.AccountID}
+                                      value={item.AccountID}
+                                    >
+                                      {item.AccountName}
+                                    </option>
+                                  )
                                 )
-                              )
                               : "Loading..."}
                           </select>
                         </Form.Group>

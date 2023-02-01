@@ -447,8 +447,8 @@ const Header = () => {
                     alt="User-Profile"
                     className="img-fluid avatar avatar-rounded avatar-rounded"
                   /> */}
-                  <img width={40}
-                    height={40} src={getAvater(config.userImg)} alt="User-Profile" className="img-fluid avatar avatar-rounded avatar-rounded" />
+                  <img width={36}
+                    height={36} src={getAvater(config.userImg)} style={{aspectRatio:'1'}} alt="User-Profile" className="img-fluid avatar avatar-rounded avatar-rounded" />
 
                   <div className="caption ms-3 d-none d-md-block text-start">
                     <h6 className="mb-0 caption-title">

@@ -154,7 +154,13 @@ const ManageUsers = () => {
         minWidth: 150,
         unSortIcon: true,
       },
-
+      {
+        headerName: `${t("Status")}`,
+        field: "LockoutEnabled",
+        minWidth: 150,
+        unSortIcon: true,
+        valueFormatter: "value? 'Active' : 'Locked'"
+      },
       {
         headerName: "Actions",
         field: "ID",
@@ -220,7 +226,13 @@ const ManageUsers = () => {
         minWidth: 150,
         unSortIcon: true,
       },
-
+      {
+        headerName: `${t("Status")}`,
+        field: `{LockoutEnabled? "Active" : "Locked"}`,
+        minWidth: 150,
+        unSortIcon: true,
+      }
+      ,
       {
         headerName: "Actions",
         field: "ID",

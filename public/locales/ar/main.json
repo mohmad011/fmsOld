@@ -23,6 +23,7 @@
     "Add_Subscription": "إضافة اشتراك",
     "Select_User_Role": "حدد دور المستخدم",
     "Scheduled_Reports": "التقارير المجدولة",
+    "Add_Scheduled_Report": "إضافة تقرير مجدول",
     "Vehicle_Managment": "إدارة المركبات",
     "Account_Management": "ادارة الحساب",
     "Drivers_Management": "إدارة السائقين",
@@ -43,5 +44,6 @@
     "Export_as_PDF_File": "تصدير كملف PDF",
     "no_rows_to_show_key": "لا توجد بيانات",
     "close_key": "إغلاق",
-    "Payment": "الدفع"
+    "Payment": "الدفع",
+    "Notify":"إدارة الإشعارات"
 }

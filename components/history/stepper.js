@@ -23,8 +23,11 @@ import ReactSelect from "components/Select";
 import { DateRangePicker } from "react-date-range";
 import IMask from "imask";
 
+import { SiMicrosoftexcel } from "react-icons/si";
+
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
+import { convertJsonToExcel } from "helpers/helpers";
 
 const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
   const { t } = useTranslation("history");
@@ -217,15 +220,15 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
       ) {
         const steps = {
           ...locInfo,
-          RecordDateTime: item.StrDate,
-          EndDate: item.EndDate,
-          Latitude: item.StrLat,
-          Longitude: item.StrLng,
-          Duration: item.Duration,
-          Address: item.StrAdd,
+          RecordDateTime: item?.StrDate,
+          EndDate: item?.EndDate,
+          Latitude: item?.StrLat,
+          Longitude: item?.StrLng,
+          Duration: item?.Duration,
+          Address: item?.StrAdd,
           Speed: 0,
-          VehicleStatus: item.StrEvent == "Parked" ? 0 : 2,
-          DisplayName: locInfo.DisplayName,
+          VehicleStatus: item?.StrEvent == "Parked" ? 0 : 2,
+          DisplayName: locInfo?.DisplayName ?? "NA",
         };
         AllLocations[item.ID] = [steps];
         currSelectedLocations = [steps];
@@ -271,19 +274,21 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
             );
 
             if (res.status === 200) {
-              const newData = res?.data?.historylocations.map((data) => ({
-                ID: data._id,
-                VehicleID: data.VehicleID,
-                RecordDateTime: data.RecordDateTime,
-                Latitude: data.Latitude,
-                Longitude: data.Longitude,
-                Direction: data.Direction,
-                Speed: data.Speed,
-                Address: data.Address,
-                VehicleStatus: data.VehicleStatus,
-                DisplayName: locInfo.DisplayName,
-                configJson: locInfo.configJson,
-              }));
+              const newData = res?.data?.historylocations.map(function (data) {
+                return {
+                  ID: data?._id,
+                  VehicleID: data?.VehicleID,
+                  RecordDateTime: data?.RecordDateTime,
+                  Latitude: data?.Latitude,
+                  Longitude: data?.Longitude,
+                  Direction: data?.Direction,
+                  Speed: data?.Speed,
+                  Address: data?.Address,
+                  VehicleStatus: data?.VehicleStatus,
+                  DisplayName: locInfo?.DisplayName,
+                  configJson: locInfo?.configJson,
+                };
+              });
               resPage = resPage.concat(newData);
               const message =
                 newData?.length == pagesize
@@ -346,6 +351,17 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
               });
               return pv;
             }, []);
+
+            if (item.StrEvent == "InProgress") {
+              const lastLocation =
+                currSelectedLocations[currSelectedLocations.length - 1];
+              item.EndDate = lastLocation.RecordDateTime;
+              setAllSteps((prev) => {
+                var crn = { ...prev };
+                crn[item.ID] = { ...item };
+                return crn;
+              });
+            }
 
             setAllLocations((prev) => {
               var crn = { ...prev };
@@ -518,7 +534,7 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
           const content = `
             <p style="margin-left: 1rem !important" ><i></i> Display Name : ${si?.DisplayName}</p>
             <p style="margin-left: 1rem !important" ><i class="${Resources.Icons?.VehicleStatus} pe-1"></i> VehicleStatus : ${vs}</p>
-            <p style="margin-left: 1rem !important" ><i class="${Resources.Icons?.RecordDateTime} pe-1"></i> ${si?.RecordDateTime}</p>
+            <p style="margin-left: 1rem !important" ><i class="${Resources.Icons?.RecordDateTime} pe-1"></i> ${moment(si?.RecordDateTime).utc().local().format("LL hh:mm:ss a")}</p>
             <p style="margin-left: 1rem !important" >${si?.Latitude} , ${si?.Longitude}</p>
             <p style="margin-left: 1rem !important" ><i class="${Resources.Icons?.Direction} pe-1"></i> Direction : ${si?.Direction}</p>
             <p style="margin-left: 1rem !important" ><i class="${Resources.Icons?.Speed} pe-1"></i> ${si?.Speed} <span style="font-size: 0.6rem;">KM/h</span></p>
@@ -694,13 +710,20 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
 
   const handleBackgroundStep = (item) => {
     if (item?.IsIdle) {
-      return "goldenrod";
+      if (item?.StrEvent == "InProgress") {
+        return "#2E7CB8";
+      } else {
+        return "goldenrod";
+      }
     } else {
       if (item?.StrEvent == "Trip") {
         return "#2f857d";
       } else {
         if (item?.StrEvent == "Parked") {
           return "#737388";
+        }
+        if (item?.StrEvent == "InProgress") {
+          return "#2E7CB8";
         } else {
           return "red";
         }
@@ -848,12 +871,43 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
                 maxIdleSince: 0,
                 excessiveIdle: false,
               }));
+              const LastStep = historysteps[historysteps.length - 1];
+              const dummyEndDate =
+                new Date(endDateUtc) > new Date()
+                  ? new Date()
+                  : new Date(endDateUtc);
+              const duration = Math.floor(
+                (dummyEndDate - new Date(LastStep.EndDate)) / 1000
+              );
+
+              if (dummyEndDate > new Date(LastStep?.EndDate)) {
+                let dummyStep = {
+                  ID: "DummyStep",
+                  IsIdle: false,
+                  StrDate: LastStep.EndDate,
+                  StrLat: LastStep.EndLat,
+                  StrLng: LastStep.EndLng,
+                  StrAdd: LastStep.EndAdd,
+                  StrMil: LastStep.EndMil,
+                  StrEvent: "InProgress",
+                  EndDate: dummyEndDate,
+                  EndLat: LastStep.EndLat,
+                  EndLng: LastStep.EndLng,
+                  EndAdd: LastStep.EndAdd,
+                  EndMil: LastStep.EndMil,
+                  EndEvent: "InProgress",
+                  Duration: duration,
+                };
+                dummyStep = { ...LastStep, ...dummyStep };
+                historysteps.push(dummyStep);
+              }
               const allHistorysteps = {};
               historysteps.forEach((item) => {
                 allHistorysteps[item.ID] = item;
               });
               setloading(false);
               setAllSteps(allHistorysteps);
+              console.log("allHistorysteps", allHistorysteps);
               if (drawOptions.getAllLocations) {
                 historysteps.forEach((step, idx) => {
                   setTimeout(() => {
@@ -885,6 +939,8 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
     MinutsTo,
     fullDate,
   ]);
+
+  const handleExport = (data, name) => convertJsonToExcel(data, name);
 
   return (
     <>
@@ -1097,6 +1153,24 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
             size="sm"
           />
         )}
+        <div>
+          {Object.values(AllSteps).length ? (
+            <p className="mt-3 d-flex justify-content-between align-items-center">
+              <h4>All Steps</h4>
+              <Button
+                size="sm"
+                className="d-flex align-items-center justify-content-between gap-2 px-2 py-1"
+                onClick={() =>
+                  handleExport(Object.values(AllSteps), "All Steps")
+                }
+              >
+                <span>Export</span> <SiMicrosoftexcel />
+              </Button>
+            </p>
+          ) : (
+            ""
+          )}
+        </div>
         <Stepper
           nonLinear
           activeStep={selectedStep}
@@ -1144,6 +1218,21 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
                         .local()
                         .format("yyyy-MM-DD hh:mm a")}
                     </span>
+                    {AllLocations[item.ID] && (
+                      <p className="lead">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="10"
+                          height="10"
+                          fill="#fff"
+                          version="1.1"
+                          viewBox="0 0 567.123 567.123"
+                          xmlSpace="preserve"
+                        >
+                          <path d="M0 567.119h567.123V.004H0v567.115zm56.818-283.642l43.556-43.568c5.404-5.404 11.812-8.109 19.217-8.109 7.399 0 13.807 2.705 19.217 8.109l90.092 90.105 199.408-199.409c5.404-5.404 11.811-8.121 19.217-8.121 7.398 0 13.807 2.717 19.217 8.121l43.557 43.55c5.402 5.422 8.113 11.824 8.113 19.217 0 7.405-2.711 13.813-8.113 19.217L248.117 474.764c-5.41 5.422-11.818 8.121-19.217 8.121-7.405 0-13.813-2.705-19.217-8.121L56.818 321.91c-5.41-5.404-8.115-11.812-8.115-19.217 0-7.406 2.699-13.812 8.115-19.216z"></path>
+                        </svg>
+                      </p>
+                    )}
                   </Button>
                 </StepLabel>
                 <StepContent>
@@ -1232,6 +1321,31 @@ const StepperComp = ({ chartModal, setchartModal, setSelectedLocations }) => {
                       </Typography>
                     </>
                   ) : null}
+                  <strong
+                    style={{
+                      color: " #2f857d",
+                      fontWeight: "900",
+                    }}
+                  >
+                    {t("All Locations")} :
+                  </strong>
+                  <Typography
+                    style={{
+                      color: !darkMode ? "rgb(34 39 55)" : "rgb(223 233 235)",
+                    }}
+                  >
+                    <Button
+                      size="sm"
+                      className="d-flex align-items-center justify-content-between gap-2 px-2 py-1"
+                      disabled={!AllLocations[item.ID]}
+                      onClick={() =>
+                        handleExport(AllLocations[item.ID], "All Locations")
+                      }
+                    >
+                      <span>Export</span> <SiMicrosoftexcel />
+                    </Button>
+                  </Typography>
+
                   <strong
                     style={{
                       color: " #2f857d",

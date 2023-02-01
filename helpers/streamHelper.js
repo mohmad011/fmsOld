@@ -23,8 +23,9 @@ const StreamHelper = () => {
   const holdStatus = [600, 5, 0, 2];
   const CalcMileage = (Mileage) => ((Mileage ?? 0) / 1000).toFixed(1);
   const CalcDuration = (newInfo, oldInfo) => {
-    if (oldInfo?.lastTrip !== null) {
-      let RecordDateTimeNew = new Date(Date2KSA(newInfo.RecordDateTime)).getTime()
+    if (oldInfo?.lastTrip) {
+      // let RecordDateTimeNew = new Date(Date2KSA(newInfo.RecordDateTime)).getTime()
+      let RecordDateTimeNew = new Date(Date2KSA(new Date())).getTime()
       let RecordDateTimeOld = new Date(oldInfo.lastTrip[1]).getTime()
       return Math.abs(
         RecordDateTimeNew - RecordDateTimeOld

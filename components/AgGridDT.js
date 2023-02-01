@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 //Ag grid
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import { useTranslation } from "next-i18next";
 import  axios  from "axios";
 import Spinner from "components/UI/Spinner";
+import { convertJsonToExcel } from "helpers/helpers";
 
 const PDFExportPanel = dynamic(() => import("./pdfExport/PDFExportPanel"), {
   ssr: false,
@@ -52,24 +53,31 @@ const AgGridDT = ({
   loadingOverlayComponent,
   overlayLoadingTemplate,
   suppressPaginationPanel,
+  rowMultiSelectWithClick
+
 }) => {
   const router = useRouter();
   const { darkMode } = useSelector((state) => state.config);
   const { t } = useTranslation("main");
   const [openBtnsExportsModel, setOpenBtnsExportsModel] = useState(false);
   const { locale } = router;
-  const onBtnExport = () => {
-    gridApi.exportDataAsCsv();
-    setOpenBtnsExportsModel(false);
-  };
+  const onBtnExport = () => convertJsonToExcel(rowData??[], "AgGrid Data")
   const handleOpenBtnsExportsModel = () => setOpenBtnsExportsModel(true);
 
+  useEffect(()=>{    
+    if (gridApi) {
+    const dataSource = {
+      getRows: (params) => params.successCallback(rowData, rowData.length)
+    }
+    gridApi.setDatasource(dataSource);
+  }},[gridApi])
   return (
     <div
       className={`ag-theme-alpine${darkMode ? "-dark" : ""} ag-grid-style`}
       style={{ height: Height || "" }}
     >
       <AgGridReact
+      rowMultiSelectWithClick={rowMultiSelectWithClick || false}
         rowHeight={rowHeight || 65}
         enableRtl={locale == "ar" ? true : false}
         columnDefs={columnDefs}

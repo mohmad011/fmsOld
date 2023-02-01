@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import { useTranslation } from "next-i18next";
 import Image from "next/image";
+import Head from "next/head";
 import { useRouter } from "next/router";
 const SubHeader = ({ pageName = "" }) => {
   const { t } = useTranslation("main");
@@ -27,9 +28,12 @@ const SubHeader = ({ pageName = "" }) => {
       case "/preventiveMaintenance/edit":
         setState("Update_Preventive");
         break;
-      // case "/scheduledReports":
-      //   setState("Scheduled_Reports");
-      //   break;
+        case "/scheduledReports":
+          setState("Scheduled_Reports");
+          break;
+          case "/scheduledReports/add":
+            setState("Add_Scheduled_Report");
+            break;
       case "/reports":
         setState("Reports");
         break;
@@ -47,6 +51,9 @@ const SubHeader = ({ pageName = "" }) => {
         break;
       case "/management":
         setState("Management");
+        break;
+      case "/notify":
+        setState("Notify");
         break;
       case "/Setting":
         setState("Setting");
@@ -149,6 +156,9 @@ const SubHeader = ({ pageName = "" }) => {
   }, [pageName]);
   return (
     <>
+      <Head>
+        <title>{t(state) || 'Saferoad FMS'}</title>
+      </Head>
       <div className="iq-navbar-header" style={{ height: "153px" }}>
         <Container fluid className=" iq-container">
           <Row>

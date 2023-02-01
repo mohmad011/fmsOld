@@ -1,6 +1,6 @@
 import axios from "axios";
 import moment, { utc } from "moment";
-import XLSX from "xlsx-js-style"
+import XLSX from "xlsx-js-style";
 import * as _ from "lodash";
 
 export const locDataModel = {
@@ -460,46 +460,72 @@ export const filterByAnyWordsTrak = (data, inputValue, nameKey) => {
   return results;
 };
 
-export function convertJsonToExcel(data = {}, fileName = "") {
+export function convertJsonToExcel(
+  data = {},
+  fileName = "",
+  colorHeader = "246C66",
+  colorRow = "babfc7"
+) {
   const workSheet = XLSX.utils.json_to_sheet(data);
-  const workBook  = XLSX.utils.book_new();
+  const workBook = XLSX.utils.book_new();
 
-  const bucket    = JSON.parse(JSON.stringify(new Array(Object.keys(data[0]).length).fill([])))
+  const bucket = JSON.parse(
+    JSON.stringify(new Array(Object?.keys(data[0]??{}).length).fill([]))
+  );
 
-  for(let i in data){
-    for (let j in bucket){
-      bucket[j].push(Object.values(data[i])[j])
+  for (let i in data) {
+    for (let j in bucket) {
+      bucket[j].push(Object.values(data[i])[j]);
     }
   }
   // let maxLengthes = bucket.map(arr => ({"wch" : Math.max(...arr?.map(el => el?.toString().length))}))
 
-  workSheet["!cols"] = []
+  workSheet["!cols"] = [];
+  workSheet["!rows"] = [];
   for (var i in workSheet) {
-      if (typeof workSheet[i] != 'object') continue;
-      let cell = XLSX.utils.decode_cell(i);
-      workSheet["!cols"].push({ wch: 50 })
-      workSheet[i].s = {
-          // styling for all cells
-          alignment: {
-              vertical: 'center',
-              horizontal: 'center',
-              wrapText: false, // any truthy value here
-          }
+    if (typeof workSheet[i] != "object") continue;
+    let cell = XLSX.utils.decode_cell(i);
+    workSheet["!cols"].push({ wch: 30 });
+    workSheet["!rows"].push({ hpx: 30 });
+    workSheet[i].s = {
+      // styling for all cells
+      alignment: {
+        vertical: "center",
+        horizontal: "center",
+        wrapText: false, // any truthy value here
+      },
+    };
+    if (cell.r == 0) {
+      // first row
+      workSheet[i].s.fill = {
+        // background color
+        patternType: "solid",
+        fgColor: { rgb: colorHeader },
+        bgColor: { rgb: colorHeader },
       };
-      if (cell.r == 0) {
-          // first row
-          workSheet[i].s.fill = {
-              // background color
-              patternType: 'solid',
-              fgColor: { rgb: '246C66' },
-              bgColor: { rgb: '246C66' },
-          };
-          workSheet[i].s.font = {
-              color:{rgb:'ffffff'},
-              sz   : '12',
-              bold : true
-          }
-      }
+      workSheet[i].s.font = {
+        color: { rgb: "ffffff" },
+        sz: "12",
+        bold: true,
+      };
+    }
+
+    // check cell is an even number
+    if (cell.r != 0 && cell.r % 2 == 0) {
+      // first row
+      workSheet[i].s.fill = {
+        // background color
+        patternType: "solid",
+        fgColor: { rgb: colorRow },
+        bgColor: { rgb: colorRow },
+      };
+      workSheet[i].s.font = {
+        color: { rgb: "ffffff" },
+        sz: "12",
+        bold: true,
+      };
+    }
+    // const result = (cell.r % 2  == 0) ? "even" : "odd";
   }
   // workSheet["!cols"]?.push(...maxLengthes)
 
@@ -510,10 +536,10 @@ export function convertJsonToExcel(data = {}, fileName = "") {
   XLSX.write(workBook, { bookType: "xlsx", type: "binary" });
   const theFile = XLSX.writeFile(workBook, `${fileName}.xlsx`);
   return theFile;
-};
+}
 
 export function exportToCsv(filename, rows) {
-  console.log("invoked",rows);
+  console.log("invoked", rows);
   if (!rows || !rows.length) {
     return;
   }
@@ -539,7 +565,7 @@ export function exportToCsv(filename, rows) {
           .join(separator);
       })
       .join("\n");
-console.log(csvData);
+  console.log(csvData);
   const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
   if (navigator.msSaveBlob) {
     // IE 10+

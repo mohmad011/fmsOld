@@ -15,7 +15,7 @@ import AverageUtilizationChart from "components/dashboard/Charts/AverageUtilizat
 
 import VehiclesStatusChart from "components/dashboard/Charts/VehiclesStatusChart";
 import AverageSpeedAndDistanceChart from "components/dashboard/Charts/AverageSpeedAndDistanceChart";
-import OverallPreventiveMaintenance from "components/dashboard/Charts/ OverallPreventiveMaintenance";
+import OverallPreventiveMaintenance from "components/dashboard/Charts/OverallPreventiveMaintenance";
 
 // import NextrepairplansTable
 import NextrepairplansTable from "components/dashboard/NextrepairplansTable";

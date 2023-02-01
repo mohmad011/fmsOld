@@ -6,6 +6,8 @@ import {
   FormControl,
   InputGroup,
 } from "react-bootstrap";
+import styles from 'styles/WidgetMenu.module.scss'
+
 
 export default function InputsFilter({
   t,
@@ -130,7 +132,7 @@ export default function InputsFilter({
                   }}
                   key={key}
                   href="#"
-                  className="bg-soft-primary nav-link py-2"
+                  className={`${ styles.dropDownItem} bg-soft-primary nav-link py-2`}
                 >
                   {t(item)}
                 </Dropdown.Item>

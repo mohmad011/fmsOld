@@ -253,14 +253,14 @@ const MenuTree = ({
         <TreeNode
           key={item?.SerialNumber}
           data={item}
-          style={{ marginRight: "10px" }}
           defaultExpandAll={true}
           autoExpandParent={true}
           defaultExpandedKeys={defaultExpandedKeys}
+          className={`${ Styles.treeItem } border-bottom`}
           icon={
             <div
               className={`position-relative  ${darkMode ? "bg-primary p-1" : "bg-transparent p-0"
-                } d-flex justify-content-center  rounded-1 `}
+                } d-flex justify-content-center rounded-1`}
               style={{ padding: "3px" }}
             >
               <Image
@@ -286,7 +286,7 @@ const MenuTree = ({
                       return (
                         <div
                           key={key}
-                          className={`me-1 border-bottom ${serialNumberFilter?.length ||
+                          className={`${Styles.menuItem} me-1 border-bottom ${serialNumberFilter?.length ||
                             addressFilter?.length ||
                             speedFromFilter?.length ||
                             speedToFilter?.length ||
@@ -298,7 +298,8 @@ const MenuTree = ({
                           title={Object.values(itemToggle)[0]}
                           style={{
                             fontSize: "13px",
-                            marginBottom: "5px",
+                            marginBottom: "10px",
+                            paddingBottom: '5px',
                             overflow: "hidden",
                             marginTop: "4px",
                             fontWeight: "600"

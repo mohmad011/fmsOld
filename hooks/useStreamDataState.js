@@ -32,8 +32,10 @@ function useStreamDataState() {
 
   let fbSubscribers = [];
   const { myMap } = useSelector((state) => state.mainMap);
-  // const VehMapFiltered = useSelector((state) => state.streamData);
-  // console.log("VehMapFiltered", VehMapFiltered.VehMapFiltered);
+  const VehMapFiltered = useSelector(
+    (state) => state.streamData.VehMapFiltered
+  );
+  console.log("VehMapFiltered", VehMapFiltered);
 
   let updatePatchSet = null;
 
@@ -65,7 +67,7 @@ function useStreamDataState() {
 
     const now = new Date();
     const getLayers = myMap?.activeGroup().getLayers();
-    let counter = 0;
+    // let counter = 0;
     // console.log("getLayers", getLayers);
     const patchSinceSec = (now.getTime() - updatePatchSet.StartAt) / 1000;
     if (patchSinceSec >= patchTimeSec) {
@@ -188,6 +190,18 @@ function useStreamDataState() {
       const apiData = [];
       do {
         apiData = await apiLoadVehSettings(++pageNo, pageSize, true); //load full data
+        let vehIdsApiData = apiData.map((v) => v.VehicleID);
+        try {
+          let res = await axios.get(
+            `vehicles/lastTrip?vids=[${vehIdsApiData}]`
+          );
+          res.data.lastTrips.forEach(
+            (v) => (apiData.find((f) => f.VehicleID == v._id).lastTrip = v.data)
+          );
+        } catch (err) {
+          console.log(err);
+        }
+
         updatedResult = updatedResult.concat(apiData);
         dispatch(addFullVehData([...updatedResult]));
         dispatch(countVehTotal());

@@ -165,7 +165,7 @@ export function popupData(locInfo) {
     {
       id: "RecordDateTime",
       Tooltip: "Record Date",
-      val: moment(locInfo?.RecordDateTime).format("LL hh:mm:ss a"),
+      val: moment(locInfo?.RecordDateTime).utc().local().format("LL hh:mm:ss a"),
       icon: getIconPopup("RecordDateTime"),
     },
     {

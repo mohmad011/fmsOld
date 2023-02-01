@@ -363,11 +363,11 @@ Saferoad.Map = L.Map.extend({
     });
     this.groups.noncluster = L.featureGroup();
 
-    this.groups.markerGroup = L.featureGroup().addTo(this);
+    this.groups.markerGroup   = L.featureGroup().addTo(this);
     this.groups.geofenceGroup = L.featureGroup().addTo(this);
-    this.groups.poiGroup = L.featureGroup().addTo(this);
-    this.groups.drawGroup = L.featureGroup().addTo(this);
-    this.controls.control = L.featureGroup().addTo(this);
+    this.groups.poiGroup      = L.featureGroup().addTo(this);
+    this.groups.drawGroup     = L.featureGroup().addTo(this);
+    this.controls.control     = L.featureGroup().addTo(this);
 
     this.setCluster(true);
 
@@ -428,7 +428,7 @@ Saferoad.Map = L.Map.extend({
       lng = ev?.latlng?.lng;
     });
   },
-
+// takes boolean argument to choose enable/disable clustering
   setCluster: function (_enableCluster) {
     if (_enableCluster) {
       this.groups.noncluster.eachLayer((m) => this.groups.cluster.addLayer(m));
@@ -443,6 +443,8 @@ Saferoad.Map = L.Map.extend({
       this.groups.cluster.clearLayers();
     }
   },
+  // returns the active group (cluster or noncluster)
+  // based on the current clustering state
   activeGroup: function () {
     return this.hasLayer(this.groups.cluster)
       ? this.groups.cluster
@@ -455,14 +457,17 @@ Saferoad.Map = L.Map.extend({
     });
     return visible;
   },
+  // used inside pin function to render vehicles
   addVehicle: function (vehicle, options = { doRezoom: true }) {
     this.activeGroup().addLayer(vehicle);
     if (options["doRezoom"]) this.rezoom("visible", vehicle);
   },
+  // used inside unpin function to remove vehicles
   removeVehicle: function (vehicle, options = { doRezoom: true }) {
     this.activeGroup().removeLayer(vehicle);
     if (options["doRezoom"]) this.rezoom();
   },
+  // zooms until only regoin that has vehicles is visible
   rezoom: function (_, _newMark) {
     var group = this.activeGroup();
     if (_newMark instanceof L.Marker) group.addLayer(_newMark);
@@ -506,10 +511,12 @@ Saferoad.Map = L.Map.extend({
       this.scrollWheelZoom.enable();
     });
   },
+  // removes everything on map
   deselectAll: function (options = { doRezoom: true }) {
     this.activeGroup().clearLayers();
     if (options["doRezoom"]) this.rezoom();
   },
+  // checker function takes the selected geofence to validate max speed limit 
   inGeofence: function (selectedGeofence) {
     var inside = false;
 
@@ -584,6 +591,9 @@ Saferoad.Map = L.Map.extend({
 
     return inside;
   },
+  // makes vehicles change location takes arguments:
+  // - locInfo object that conatins lat&long
+  // - options object exists in map object 
   UpdateMarker: function (locInfo, options) {
     // 359632107731876
     // SerialNumber
@@ -628,6 +638,7 @@ Saferoad.Map = L.Map.extend({
 
     return _locInfo?.VehicleID;
   },
+  // removes vehicle from the map
   unpin: function (_VehicleID, options = { doRezoom: true }) {
     var oldMark = this.getVehicle(_VehicleID);
     if (typeof oldMark === "undefined") return;
@@ -639,6 +650,7 @@ Saferoad.Map = L.Map.extend({
       .getLayers()
       .find((x) => x?.options?.locInfo?.VehicleID == _VehicleID);
   },
+  // checks if a vehicle exists on the map
   isExist: function (_VehicleID) {
     return this.groups.cluster
       .getLayers()
@@ -679,7 +691,7 @@ Saferoad.Map = L.Map.extend({
 
         var topbar;
 
-        if (window.location.href.includes("track")) {
+        if (window.location.pathname.includes("track")) {
           topbar = [
             `<a class="act" onclick="event.stopPropagation(); getElementById('downLoadDataVehs').setAttribute('data-Id' , '${exportUrl(
               markers
@@ -900,11 +912,9 @@ Saferoad.Icon.Helpers = {
       options?.VehicleType.includes("icon")
     ) {
       iconUrl = iconsWithNames[JSON.parse(options?.VehicleType)?.icon];
-    }
-
-    if (
-      options?.VehicleType == "null" ||
+    } else if (
       options?.VehicleType == null ||
+      options?.VehicleType.includes("null") ||
       options?.VehicleType == undefined
     ) {
       if (localStorage.getItem("VehicleIcon") != undefined) {
@@ -916,9 +926,7 @@ Saferoad.Icon.Helpers = {
         iconsWithNames[JSON.parse(options?.VehicleType ?? "{}")?.icon] ??
         localStorage.getItem("VehicleIcon") ??
         iconsWithNames["sedan1"];
-    }
-
-    if (
+    } else if (
       typeof options?.VehicleType == "string" &&
       !options?.VehicleType.includes("icon")
     ) {
@@ -1170,6 +1178,7 @@ Saferoad.Popup = L.Popup.extend({
     this.on("add", Saferoad.Popup.Events.add);
     this.on("remove", Saferoad.Popup.Events.remove);
   },
+  // used insides updateContent function
   syncContent: async function () {
     const config_popup =
       localStorage.getItem("Popup_Track") &&
@@ -1182,7 +1191,7 @@ Saferoad.Popup = L.Popup.extend({
     var content = '<div class="row popup_config_row">';
 
     const itemConfig = (item) => {
-      if (item?.val) {
+      if (item?.val != null || item?.val != undefined) {
         return (
           `
         <div id="col-${item?.id}" class="${
@@ -1215,7 +1224,7 @@ Saferoad.Popup = L.Popup.extend({
       }
     };
 
-    if (window.location.href.includes("track")) {
+    if (window.location.pathname.includes("track")) {
       const locSelectedItems = Object.keys(config_popup ?? []).filter(
         (item) => config_popup[item]
       );
@@ -1237,6 +1246,7 @@ Saferoad.Popup = L.Popup.extend({
           item.id === "Speed" ||
           item.id === "Direction" ||
           item.id === "VehicleStatus" ||
+          item.id === "Address" ||
           item.id === "Latitude , Longitude"
         );
       };
@@ -1254,7 +1264,7 @@ Saferoad.Popup = L.Popup.extend({
             <div class="car_popup_config_header">
             
             ${
-              window.location.href.includes("track")
+              window.location.pathname.includes("track")
                 ? `
                   <button id="popup_config_header_icon" onClick="getElementById('ConfigPopup').click()" class="fa fa-sliders-h car_popup_config_header_icon"></button>
                 `
@@ -1263,7 +1273,7 @@ Saferoad.Popup = L.Popup.extend({
             <span>${locInfo?.DisplayName}</span>
             </div>
     </div>`;
-    // window.location.href.includes("track")
+    // window.location.pathname.includes("track")
     //   ? locInfo?.DisplayName
     //   : locInfo?.Address
     let FullHistoryPlayBackDiv = `
@@ -1282,7 +1292,7 @@ Saferoad.Popup = L.Popup.extend({
         <div class='actionsBtnsContainer'>
 
           ${
-            window.location.href.includes("track")
+            window.location.pathname.includes("track")
               ? `
               <button class='dropbtn' onClick="getElementById('innerBtns').style.display == 'block' ? getElementById('innerBtns').style.display = 'none' : getElementById('innerBtns').style.display = 'block'"><span>${currentLocale.Actions}</span></button>
               ${FullHistoryPlayBackDiv}
@@ -1292,7 +1302,7 @@ Saferoad.Popup = L.Popup.extend({
                   <button disabled onclick="getElementById('CalibrateMileageBtn'      ).setAttribute('data-Id',${locInfo?.VehicleID}   );getElementById('CalibrateMileageBtn'      ).click();"><span>${currentLocale.Calibrate_Mileage}       </span></button>
                   <button onclick="getElementById('CalibrateWeightSettingBtn').setAttribute('data-Id',${locInfo?.VehicleID}   );getElementById('CalibrateWeightSettingBtn').click();"><span>${currentLocale.Calibrate_Weight_Setting}</span></button>
                   <button onclick="getElementById('ShareLocationBtn'         ).setAttribute('data-Id',${locInfo?.VehicleID}   );getElementById('ShareLocationBtn'         ).click();"><span>${currentLocale.Share_Location}          </span></button>
-                  <button onclick="getElementById('SubmitACommandBtn'        ).setAttribute('data-Id',${locInfo?.VehicleID}   );getElementById('SubmitACommandBtn'        ).click();"><span>${currentLocale.Submit_A_Command}        </span></button>
+                  <button disabled onclick="getElementById('SubmitACommandBtn'        ).setAttribute('data-Id',${locInfo?.VehicleID}   );getElementById('SubmitACommandBtn'        ).click();"><span>${currentLocale.Submit_A_Command}        </span></button>
                   <button onclick="getElementById('DisableVehicleBtn'        ).setAttribute('data-Id',${locInfo?.SerialNumber});getElementById('DisableVehicleBtn'        ).click();"><span>${currentLocale.Disable_Vehicle}         </span></button>
                   <button onclick="getElementById('EnableVehicleBtn'         ).setAttribute('data-Id',${locInfo?.SerialNumber});getElementById('EnableVehicleBtn'         ).click();"><span>${currentLocale.Enable_Vehicle}          </span></button>
                   
@@ -1314,6 +1324,7 @@ Saferoad.Popup = L.Popup.extend({
   getButtons: function () {
     return getmainbuttons(this.options?.locInfo);
   },
+  // takes locInfo to assign it to vehicle popup
   UpdateContent: function (_locInfo) {
     var div = $("#MovePopup.pop_V_" + _locInfo?.VehicleID);
     if (typeof div == "undefined") return;
@@ -1368,7 +1379,7 @@ Saferoad.Popup.Events = {
     //console.log(`${e.target.options.locInfo.VehicleID}: Popup hide`);
   },
 };
-
+// to create a custom map marker
 Saferoad.Poi = L.Icon.extend({
   options: {
     IconName: null,
